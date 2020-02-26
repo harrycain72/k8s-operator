@@ -3,8 +3,20 @@ module visitors-operator
 go 1.13
 
 require (
+	github.com/cosiner/argv v0.0.1 // indirect
+	github.com/go-delve/delve v1.4.0 // indirect
+	github.com/jdob/visitors-operator v0.0.0-20191024200828-5b18c79fe98b
+	github.com/mattn/go-colorable v0.1.4 // indirect
+	github.com/mattn/go-isatty v0.0.12 // indirect
+	github.com/mattn/go-runewidth v0.0.8 // indirect
 	github.com/operator-framework/operator-sdk v0.15.1-0.20200221204706-1ea777394d2f
+	github.com/peterh/liner v1.2.0 // indirect
+	github.com/spf13/cobra v0.0.6 // indirect
 	github.com/spf13/pflag v1.0.5
+	go.starlark.net v0.0.0-20200203144150-6677ee5c7211 // indirect
+	golang.org/x/arch v0.0.0-20191126211547-368ea8f32fff // indirect
+	golang.org/x/sys v0.0.0-20200223170610-d5e6a3e2c0ae // indirect
+	gopkg.in/yaml.v2 v2.2.8 // indirect
 	k8s.io/api v0.0.0
 	k8s.io/apimachinery v0.0.0
 	k8s.io/client-go v12.0.0+incompatible

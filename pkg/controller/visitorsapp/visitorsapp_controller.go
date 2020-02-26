@@ -62,6 +62,15 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
+	err = c.Watch(&source.Kind{Type: &corev1.Service{}}, &handler.EnqueueRequestForOwner{
+		IsController: true,
+		OwnerType:    &examplev1.VisitorsApp{},
+	})
+	
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -101,6 +110,7 @@ func (r *ReconcileVisitorsApp) Reconcile(request reconcile.Request) (reconcile.R
 		return reconcile.Result{}, err
 	}
 
+	//***********************************
 	// Define a new Pod object
 	pod := newPodForCR(instance)
 
@@ -123,12 +133,25 @@ func (r *ReconcileVisitorsApp) Reconcile(request reconcile.Request) (reconcile.R
 		return reconcile.Result{}, nil
 	} else if err != nil {
 		return reconcile.Result{}, err
-	}
+	} 
 
 	// Pod already exists - don't requeue
-	reqLogger.Info("Skip reconcile: Pod already exists", "Pod.Namespace", found.Namespace, "Pod.Name", found.Name)
+	//reqLogger.Info("Skip reconcile: Pod already exists", "Pod.Namespace", found.Namespace, "Pod.Name", found.Name)
+
+
+	var result *reconcile.Result
+	//FRONTEND - Service
+	result,err = r.ensureService(request, instance, r.frontendService(instance) )
+	if result != nil {
+		return *result, err
+	}
+
+
+	// == Finish ==========
+	// Everything went fine, don't requeue
 	return reconcile.Result{}, nil
 }
+
 
 // newPodForCR returns a busybox pod with the same name/namespace as the cr
 func newPodForCR(cr *examplev1.VisitorsApp) *corev1.Pod {
