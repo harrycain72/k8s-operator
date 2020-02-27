@@ -46,3 +46,39 @@ func (r *ReconcileVisitorsApp) ensureService(request reconcile.Request,
 
 	return nil, nil
 }
+
+
+func (r *ReconcileVisitorsApp) ensurePod(request reconcile.Request,
+	instance *examplev1.VisitorsApp,
+	p *corev1.Pod,
+) (*reconcile.Result, error) {
+
+	found := &corev1.Pod{}
+	err := r.client.Get(context.TODO(), types.NamespacedName{
+		Name:      p.Name,
+		Namespace: instance.Namespace,
+	}, found)
+	
+	// check if we were not able to find the pod 
+	if err != nil && errors.IsNotFound(err) {
+
+		// Create the pod
+		log.Info("Creating a new pod", "Pod.Namespace", p.Namespace, "Pod.Name", p.Name)
+		err = r.client.Create(context.TODO(), p)
+
+		if err != nil {
+			// Creation failed
+			log.Error(err, "Failed to create new Pod", "Pod.Namespace", p.Namespace, "Pod.Name", p.Name)
+			return &reconcile.Result{}, err
+		} else {
+			// Creation was successful
+			return nil, nil
+		}
+	} else if err != nil {
+		// Error that isn't due to the pod not existing
+		log.Error(err, "Failed to get pod")
+		return &reconcile.Result{}, err
+	}
+
+	return nil, nil
+}

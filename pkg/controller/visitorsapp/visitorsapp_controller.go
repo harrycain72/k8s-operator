@@ -9,10 +9,12 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
+
+	//	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
+	//"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -66,7 +68,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		IsController: true,
 		OwnerType:    &examplev1.VisitorsApp{},
 	})
-	
+
 	if err != nil {
 		return err
 	}
@@ -110,48 +112,20 @@ func (r *ReconcileVisitorsApp) Reconcile(request reconcile.Request) (reconcile.R
 		return reconcile.Result{}, err
 	}
 
-	//***********************************
-	// Define a new Pod object
-	pod := newPodForCR(instance)
-
-	// Set VisitorsApp instance as the owner and controller
-	if err := controllerutil.SetControllerReference(instance, pod, r.scheme); err != nil {
-		return reconcile.Result{}, err
-	}
-
-	// Check if this Pod already exists
-	found := &corev1.Pod{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: pod.Name, Namespace: pod.Namespace}, found)
-	if err != nil && errors.IsNotFound(err) {
-		reqLogger.Info("Creating a new Pod", "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
-		err = r.client.Create(context.TODO(), pod)
-		if err != nil {
-			return reconcile.Result{}, err
-		}
-
-		// Pod created successfully - don't requeue
-		return reconcile.Result{}, nil
-	} else if err != nil {
-		return reconcile.Result{}, err
-	} 
-
-	// Pod already exists - don't requeue
-	//reqLogger.Info("Skip reconcile: Pod already exists", "Pod.Namespace", found.Namespace, "Pod.Name", found.Name)
-
-
 	var result *reconcile.Result
+
+	//POD
+	result, err = r.ensurePod(request, instance, r.newPodForCR(instance))
 	//FRONTEND - Service
-	result,err = r.ensureService(request, instance, r.frontendService(instance) )
+	result, err = r.ensureService(request, instance, r.frontendService(instance))
 	if result != nil {
 		return *result, err
 	}
-
 
 	// == Finish ==========
 	// Everything went fine, don't requeue
 	return reconcile.Result{}, nil
 }
-
 
 // newPodForCR returns a busybox pod with the same name/namespace as the cr
 func newPodForCR(cr *examplev1.VisitorsApp) *corev1.Pod {
