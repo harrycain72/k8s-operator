@@ -12,6 +12,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
+func labels(v *examplev1.VisitorsApp, tier string) map[string]string {
+	return map[string]string{
+		"app":             "visitors",
+		"visitorssite_cr": v.Name,
+		"tier":            tier,
+	}
+}
+
 func (r *ReconcileVisitorsApp) ensureService(request reconcile.Request,
 	instance *examplev1.VisitorsApp,
 	s *corev1.Service,

@@ -2,19 +2,13 @@ package visitorsapp
 
 
 import (
-	//"context"
-	//"time"
 
 	examplev1 "visitors-operator/pkg/apis/example/v1"
-
-	//appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	//"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	//"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
 )
 
 const frontendPort = 3000
@@ -26,13 +20,7 @@ func frontendServiceName(v *examplev1.VisitorsApp) string {
 	return v.Name + "-frontend-service"
 }
 
-func labels(v *examplev1.VisitorsApp, tier string) map[string]string {
-	return map[string]string{
-		"app":             "visitors",
-		"visitorssite_cr": v.Name,
-		"tier":            tier,
-	}
-}
+
 
 //frontendService creates the service structure
 func (r *ReconcileVisitorsApp) frontendService(v *examplev1.VisitorsApp) *corev1.Service {

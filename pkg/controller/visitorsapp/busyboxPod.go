@@ -5,16 +5,18 @@ import (
 	examplev1 "visitors-operator/pkg/apis/example/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
-func (r *ReconcileVisitorsApp) newPodForCR(cr *examplev1.VisitorsApp) *corev1.Pod {
-	labels := map[string]string{
-		"app": cr.Name,
-	}
-	return &corev1.Pod{
+func (r *ReconcileVisitorsApp) newPodForCR(v *examplev1.VisitorsApp) *corev1.Pod {
+	
+
+	labels := labels(v, "backend")
+
+	p := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      cr.Name + "-pod",
-			Namespace: cr.Namespace,
+			Name:      v.Name + "-pod",
+			Namespace: v.Namespace,
 			Labels:    labels,
 		},
 		Spec: corev1.PodSpec{
@@ -27,4 +29,10 @@ func (r *ReconcileVisitorsApp) newPodForCR(cr *examplev1.VisitorsApp) *corev1.Po
 			},
 		},
 	}
+
+	log.Info("Pod Spec", "Pod.Name", p.ObjectMeta.Name)
+
+	controllerutil.SetControllerReference(v, p, r.scheme)
+
+	return p
 }
